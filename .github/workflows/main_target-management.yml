@@ -11,7 +11,7 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     permissions:
       contents: read #This is required for actions/checkout
 
@@ -21,19 +21,22 @@ jobs:
       - name: Set up Node.js version
         uses: actions/setup-node@v3
         with:
-          node-version: '20.x'
+          node-version: '18.x'
 
       - name: npm install, build, and test
         run: |
           npm install
           npm run build --if-present
           npm run test --if-present
-      
+
+      - name: Zip artifact for deployment
+        run: zip release.zip ./* -r
+
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: node-app
-          path: .
+          path: release.zip
 
   deploy:
     runs-on: ubuntu-latest
@@ -50,17 +53,20 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: node-app
+
+      - name: Unzip artifact for deployment
+        run: unzip release.zip
       
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_7AB08D957A314073B2D199A1A209CC69 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_7CF9EC6D440348BFB170FAD6405AA168 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_C27B987BD0F84E71ABCC313C940442E7 }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_4D215ECCD8A648D2888EE220909A4E7D }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_3AC052769062460E8B3DC91723400D9A }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_37BC69DDDC564DBF8FEB7C3078BB4C9C }}
 
       - name: 'Deploy to Azure Web App'
-        uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
+        uses: azure/webapps-deploy@v3
         with:
           app-name: 'target-management'
           slot-name: 'Production'
