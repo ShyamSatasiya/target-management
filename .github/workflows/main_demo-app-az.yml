@@ -1,7 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy Node.js app to Azure Web App - target-management
+name: Build and deploy Node.js app to Azure Web App - demo-app-az
 
 on:
   push:
@@ -11,7 +11,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     permissions:
       contents: read #This is required for actions/checkout
 
@@ -21,22 +21,19 @@ jobs:
       - name: Set up Node.js version
         uses: actions/setup-node@v3
         with:
-          node-version: '18.x'
+          node-version: '20.x'
 
       - name: npm install, build, and test
         run: |
           npm install
           npm run build --if-present
           npm run test --if-present
-
-      - name: Zip artifact for deployment
-        run: zip release.zip ./* -r
-
+      
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: node-app
-          path: release.zip
+          path: .
 
   deploy:
     runs-on: ubuntu-latest
@@ -53,22 +50,19 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: node-app
-
-      - name: Unzip artifact for deployment
-        run: unzip release.zip
       
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_4D215ECCD8A648D2888EE220909A4E7D }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_3AC052769062460E8B3DC91723400D9A }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_37BC69DDDC564DBF8FEB7C3078BB4C9C }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_4C2B84AD3C90467DB0F311D6E7F83EEC }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_B6E290D02EDC4B84BAC749564D70E050 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_A7F715E5EB3E4204AC729D930A2AB706 }}
 
       - name: 'Deploy to Azure Web App'
-        id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
+        id: deploy-to-webapp
         with:
-          app-name: 'target-management'
+          app-name: 'demo-app-az'
           slot-name: 'Production'
           package: .
           
